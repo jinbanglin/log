@@ -2,7 +2,7 @@ package log_test
 
 import (
 	"testing"
-	"github.com/jinbanglin/moss/log"
+	"github.com/jinbanglin/log"
 )
 
 func TestErrorf(t *testing.T) {
