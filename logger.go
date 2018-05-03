@@ -2,10 +2,10 @@ package log
 
 import (
 	"bufio"
-	"bytes"
 	"io"
 	"os"
 	"sync"
+	"github.com/jinbanglin/bytesbuffpool"
 )
 
 type Hook interface {
@@ -24,7 +24,7 @@ type Logger struct {
 	fileMaxSize    int
 	fileBufSize    int
 	fileActualSize int
-	bucket         chan *bytes.Buffer
+	bucket         chan *bytesbufferpool.ByteBuffer
 	bucketFlushLen int
 	lock           *sync.RWMutex
 	output         io.Writer
