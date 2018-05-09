@@ -49,7 +49,7 @@ func (l *Logger) loadCurLogFile() error {
 	l.link = filepath.Join(l.path, gSetFilename+".log")
 	actFileName, ok := isLinkFile(l.link)
 	if !ok {
-		return errors.New("is not link file")
+		return errors.New(l.link+"log: is not link file")
 	}
 	l.fileName = filepath.Join(l.path, actFileName)
 	f, err := openFile(l.fileName)
