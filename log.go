@@ -61,7 +61,7 @@ func (l *Logger) loadCurLogFile() error {
 		return err
 	}
 	sp := strings.Split(actFileName, ".")
-	t, err := time.Parse("2006-01-02", sp[1])
+	t, err := time.Parse("2006.01.02", sp[1])
 	if err != nil {
 		fmt.Errorf("loadCurrentLogFile |err=%v", err)
 		return err
@@ -85,7 +85,7 @@ func (l *Logger) createFile() (err error) {
 	l.timestamp = y*10000 + int(m)*100 + d*1
 	l.fileName = filepath.Join(
 		l.path,
-		filepath.Base(os.Args[0])+"."+now.Format("2006-01.02.15:04:05")+".log")
+		filepath.Base(os.Args[0])+"."+now.Format("2006.01.02.15:04:05")+".log")
 	f, err := openFile(l.fileName)
 	if err != nil {
 		return err
