@@ -8,8 +8,8 @@ import (
 func poller() {
 	atomic.SwapUint32(&gLogger.look, uint32(coreRunning))
 	if err := gLogger.loadCurLogFile(); err != nil {
-		if gLogger.createFile() != nil {
-			panic("load file error")
+		if err=gLogger.createFile();err != nil {
+			panic(err)
 		}
 	}
 	go gLogger.signalHandler()
