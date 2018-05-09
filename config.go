@@ -52,8 +52,18 @@ func setupConfig() {
 	if value := viper.GetString("log.linkname"); value != "" {
 		gSetFilename = value
 	}
+	if value := viper.GetString("log.out"); value != "" {
+		switch value {
+		case "stdout":
+			gSetOut = OUT_STDOUT
+		case "file":
+			gSetOut = OUT_FILE
+		default:
+			gSetOut = OUT_STDOUT
+		}
+	}
 	if value := viper.GetString("log.filepath"); value != "" {
-		if !pathIsExist(value) {
+		if !pathIsExist(value) &&gSetOut==OUT_FILE{
 			if err := os.Mkdir(value, os.ModePerm); err != nil {
 				panic(err)
 			}
@@ -65,16 +75,6 @@ func setupConfig() {
 	}
 	if value := viper.GetInt("log.maxsize"); value > 0 {
 		gSetMaxSize = value * MB
-	}
-	if value := viper.GetString("log.out"); value != "" {
-		switch value {
-		case "stdout":
-			gSetOut = OUT_STDOUT
-		case "file":
-			gSetOut = OUT_FILE
-		default:
-			gSetOut = OUT_STDOUT
-		}
 	}
 	if value := viper.GetInt("log.interval"); value > 0 {
 		gSetPollerInterval = value

@@ -22,11 +22,10 @@ import (
 var gLogger *Logger
 
 func init() {
-	SetupMossLog()
+	setupLogger()
 }
 
-func SetupMossLog() {
-	setupConfig()
+func setupLogger() {
 	y, m, d := time.Now().Date()
 	gLogger = &Logger{
 		look:        uint32(coreDead),
@@ -40,6 +39,11 @@ func SetupMossLog() {
 		lock:        &sync.RWMutex{},
 		sigChan:     make(chan os.Signal),
 	}
+}
+
+func SetupMossLog() {
+	setupConfig()
+	setupLogger()
 	if gSetOut == OUT_FILE {
 		go poller()
 	}
@@ -49,7 +53,7 @@ func (l *Logger) loadCurLogFile() error {
 	l.link = filepath.Join(l.path, gSetFilename+".log")
 	actFileName, ok := isLinkFile(l.link)
 	if !ok {
-		return errors.New(l.link+"log: is not link file")
+		return errors.New(l.link + "is not link file or not exist")
 	}
 	l.fileName = filepath.Join(l.path, actFileName)
 	f, err := openFile(l.fileName)
