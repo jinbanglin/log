@@ -15,7 +15,7 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
-	"github.com/jinbanglin/bytesbuffpool"
+	"github.com/jinbanglin/bytebufferpool"
 	"unsafe"
 )
 
@@ -35,7 +35,7 @@ func SetupMossLog() {
 		path:        filepath.Join(gSetFilePath, gSetFilename),
 		timestamp:   y*10000 + int(m)*100 + d*1,
 		fileMaxSize: gSetMaxSize,
-		bucket:      make(chan *bytesbufferpool.ByteBuffer, gSetBucketLen),
+		bucket:      make(chan *bytebufferpool.ByteBuffer, gSetBucketLen),
 		closeSignal: make(chan string),
 		lock:        &sync.RWMutex{},
 		sigChan:     make(chan os.Signal),
@@ -60,8 +60,7 @@ func (l *Logger) loadCurLogFile() error {
 	if err != nil {
 		return err
 	}
-	sp := strings.Split(actFileName, ".")
-	t, err := time.Parse("2006.01.02", sp[1])
+	t, err := time.Parse("2006.01.02.15:04:05", strings.TrimSuffix(actFileName, ".log"))
 	if err != nil {
 		fmt.Errorf("loadCurrentLogFile |err=%v", err)
 		return err
@@ -85,7 +84,7 @@ func (l *Logger) createFile() (err error) {
 	l.timestamp = y*10000 + int(m)*100 + d*1
 	l.fileName = filepath.Join(
 		l.path,
-		filepath.Base(os.Args[0])+"."+now.Format("2006.01.02.15:04:05")+".log")
+		now.Format("2006.01.02.15:04:05")+".log")
 	f, err := openFile(l.fileName)
 	if err != nil {
 		return err
@@ -141,7 +140,7 @@ func (l *Logger) signalHandler() {
 	}
 }
 
-func (l *Logger) release(buf *bytesbufferpool.ByteBuffer) { bytesbufferpool.Put(buf) }
+func (l *Logger) release(buf *bytebufferpool.ByteBuffer) { bytebufferpool.Put(buf) }
 
 func caller() string {
 	pc, f, l, _ := runtime.Caller(2)
@@ -149,7 +148,7 @@ func caller() string {
 	return path.Base(f) + "/" + path.Base(funcName) + " [" + strconv.Itoa(l) + "] "
 }
 
-func print(buf *bytesbufferpool.ByteBuffer) {
+func print(buf *bytebufferpool.ByteBuffer) {
 	switch gSetOut {
 	case OUT_FILE:
 		gLogger.bucket <- buf
@@ -164,7 +163,7 @@ func Debugf(format string, msg ... interface{}) {
 	if gSetLevel > _DEBUG {
 		return
 	}
-	buf := bytesbufferpool.Get()
+	buf := bytebufferpool.Get()
 	buf.Write(string2Byte("[DEBU] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
 	buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
 	print(buf)
@@ -174,7 +173,7 @@ func Infof(format string, msg ... interface{}) {
 	if gSetLevel > _INFO {
 		return
 	}
-	buf := bytesbufferpool.Get()
+	buf := bytebufferpool.Get()
 	buf.Write(string2Byte("[INFO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
 	buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
 	print(buf)
@@ -184,7 +183,7 @@ func Warnf(format string, msg ... interface{}) {
 	if gSetLevel > _WARN {
 		return
 	}
-	buf := bytesbufferpool.Get()
+	buf := bytebufferpool.Get()
 	buf.Write(string2Byte("[WARN] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
 	buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
 	print(buf)
@@ -194,7 +193,7 @@ func Errorf(format string, msg ... interface{}) {
 	if gSetLevel > _ERR {
 		return
 	}
-	buf := bytesbufferpool.Get()
+	buf := bytebufferpool.Get()
 	buf.Write(string2Byte("[ERRO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
 	buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
 	print(buf)
@@ -204,7 +203,7 @@ func Fatalf(format string, msg ... interface{}) {
 	if gSetLevel > _DISASTER {
 		return
 	}
-	buf := bytesbufferpool.Get()
+	buf := bytebufferpool.Get()
 	buf.Write(string2Byte("[FTAL] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
 	buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
 	print(buf)
@@ -224,7 +223,7 @@ func Debug(msg ... interface{}) {
 	if gSetLevel > _DEBUG {
 		return
 	}
-	buf := bytesbufferpool.Get()
+	buf := bytebufferpool.Get()
 	buf.Write(string2Byte("[DEBU] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
 	buf.Write(string2Byte(fmt.Sprintln(msg...)))
 	print(buf)
@@ -234,7 +233,7 @@ func Info(msg ... interface{}) {
 	if gSetLevel > _INFO {
 		return
 	}
-	buf := bytesbufferpool.Get()
+	buf := bytebufferpool.Get()
 	buf.Write(string2Byte("[INFO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
 	buf.Write(string2Byte(fmt.Sprintln(msg...)))
 	print(buf)
@@ -244,7 +243,7 @@ func Warn(msg ... interface{}) {
 	if gSetLevel > _WARN {
 		return
 	}
-	buf := bytesbufferpool.Get()
+	buf := bytebufferpool.Get()
 	buf.Write(string2Byte("[WARN] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
 	buf.Write(string2Byte(fmt.Sprintln(msg...)))
 	print(buf)
@@ -254,7 +253,7 @@ func Error(msg ... interface{}) {
 	if gSetLevel > _ERR {
 		return
 	}
-	buf := bytesbufferpool.Get()
+	buf := bytebufferpool.Get()
 	buf.Write(string2Byte("[ERRO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
 	buf.Write(string2Byte(fmt.Sprintln(msg...)))
 	print(buf)
@@ -264,7 +263,7 @@ func Fatal(msg ... interface{}) {
 	if gSetLevel > _DISASTER {
 		return
 	}
-	buf := bytesbufferpool.Get()
+	buf := bytebufferpool.Get()
 	buf.Write(string2Byte("[FTAL] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
 	buf.Write(string2Byte(fmt.Sprintln(msg...)))
 	print(buf)

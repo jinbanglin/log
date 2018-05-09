@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 	"sync"
-	"github.com/jinbanglin/bytesbuffpool"
+	"github.com/jinbanglin/bytebufferpool"
 )
 
 type Hook interface {
@@ -24,7 +24,7 @@ type Logger struct {
 	fileMaxSize    int
 	fileBufSize    int
 	fileActualSize int
-	bucket         chan *bytesbufferpool.ByteBuffer
+	bucket         chan *bytebufferpool.ByteBuffer
 	bucketFlushLen int
 	lock           *sync.RWMutex
 	output         io.Writer

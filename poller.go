@@ -3,11 +3,13 @@ package log
 import (
 	"sync/atomic"
 	"time"
+	"fmt"
 )
 
 func poller() {
 	atomic.SwapUint32(&gLogger.look, uint32(coreRunning))
 	if err := gLogger.loadCurLogFile(); err != nil {
+		fmt.Println(err)
 		if err=gLogger.createFile();err != nil {
 			panic(err)
 		}
