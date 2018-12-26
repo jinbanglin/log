@@ -45,6 +45,7 @@ var gSetFilePath = getCurrentDirectory()
 var gSetLevel = _DEBUG
 var gSetPollerInterval = 500
 var gContextKey = "TRACE"
+var gSendMail = false
 
 func setupConfig() {
   if value := viper.GetInt("log.bucketlen"); value > 0 {
@@ -80,4 +81,5 @@ func setupConfig() {
   if value := viper.GetInt("log.interval"); value > 0 {
     gSetPollerInterval = value
   }
+  gSendMail = viper.GetBool("log.send_mail")
 }

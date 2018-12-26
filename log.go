@@ -19,6 +19,7 @@ import (
   "unsafe"
   "context"
   "github.com/jinbanglin/go-micro/metadata"
+  "github.com/jinbanglin/helper"
 )
 
 var gLogger *Logger
@@ -154,7 +155,10 @@ func caller() string {
   return path.Base(f) + "/" + path.Base(funcName) + " [" + strconv.Itoa(l) + "] "
 }
 
-func print(buf *bytebufferpool.ByteBuffer) {
+func print(lvl level, buf *bytebufferpool.ByteBuffer) {
+  if gSendMail && lvl >= _ERR {
+    helper.EmailInstance().SendMail(buf.String())
+  }
   switch gSetOut {
   case OUT_FILE:
     gLogger.bucket <- buf
@@ -172,7 +176,7 @@ func Debugf(format string, msg ... interface{}) {
   buf := bytebufferpool.Get()
   buf.Write(string2Byte("[DEBU] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
-  print(buf)
+  print(_DEBUG, buf)
 }
 
 func Infof(format string, msg ... interface{}) {
@@ -182,7 +186,7 @@ func Infof(format string, msg ... interface{}) {
   buf := bytebufferpool.Get()
   buf.Write(string2Byte("[INFO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
-  print(buf)
+  print(_INFO, buf)
 }
 
 func Warnf(format string, msg ... interface{}) {
@@ -192,7 +196,7 @@ func Warnf(format string, msg ... interface{}) {
   buf := bytebufferpool.Get()
   buf.Write(string2Byte("[WARN] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
-  print(buf)
+  print(_WARN, buf)
 }
 
 func Errorf(format string, msg ... interface{}) {
@@ -202,7 +206,7 @@ func Errorf(format string, msg ... interface{}) {
   buf := bytebufferpool.Get()
   buf.Write(string2Byte("[ERRO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
-  print(buf)
+  print(_ERR, buf)
 }
 
 func Fatalf(format string, msg ... interface{}) {
@@ -212,7 +216,7 @@ func Fatalf(format string, msg ... interface{}) {
   buf := bytebufferpool.Get()
   buf.Write(string2Byte("[FTAL] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
-  print(buf)
+  print(_DISASTER, buf)
 }
 
 func Stackf(format string, msg ... interface{}) {
@@ -232,7 +236,7 @@ func Debug(msg ... interface{}) {
   buf := bytebufferpool.Get()
   buf.Write(string2Byte("[DEBU] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(fmt.Sprintln(msg...)))
-  print(buf)
+  print(_DEBUG, buf)
 }
 
 func Info(msg ... interface{}) {
@@ -242,7 +246,7 @@ func Info(msg ... interface{}) {
   buf := bytebufferpool.Get()
   buf.Write(string2Byte("[INFO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(fmt.Sprintln(msg...)))
-  print(buf)
+  print(_INFO, buf)
 }
 
 func Warn(msg ... interface{}) {
@@ -252,7 +256,7 @@ func Warn(msg ... interface{}) {
   buf := bytebufferpool.Get()
   buf.Write(string2Byte("[WARN] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(fmt.Sprintln(msg...)))
-  print(buf)
+  print(_WARN, buf)
 }
 
 func Error(msg ... interface{}) {
@@ -262,7 +266,7 @@ func Error(msg ... interface{}) {
   buf := bytebufferpool.Get()
   buf.Write(string2Byte("[ERRO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(fmt.Sprintln(msg...)))
-  print(buf)
+  print(_ERR, buf)
 }
 
 func Fatal(msg ... interface{}) {
@@ -272,7 +276,7 @@ func Fatal(msg ... interface{}) {
   buf := bytebufferpool.Get()
   buf.Write(string2Byte("[FTAL] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(fmt.Sprintln(msg...)))
-  print(buf)
+  print(_DISASTER, buf)
 }
 
 func Stack(msg ... interface{}) {
@@ -293,7 +297,7 @@ func Debugf2(ctx context.Context, format string, msg ... interface{}) {
   buf.Write(string2Byte("[DEBU] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(gContextKey + "=" + getContextValue(ctx) + " |"))
   buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
-  print(buf)
+  print(_DEBUG, buf)
 }
 
 func Infof2(ctx context.Context, format string, msg ... interface{}) {
@@ -304,7 +308,7 @@ func Infof2(ctx context.Context, format string, msg ... interface{}) {
   buf.Write(string2Byte("[INFO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(gContextKey + "=" + getContextValue(ctx) + " |"))
   buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
-  print(buf)
+  print(_INFO, buf)
 }
 
 func Warnf2(ctx context.Context, format string, msg ... interface{}) {
@@ -315,7 +319,7 @@ func Warnf2(ctx context.Context, format string, msg ... interface{}) {
   buf.Write(string2Byte("[WARN] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(gContextKey + "=" + getContextValue(ctx) + " |"))
   buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
-  print(buf)
+  print(_WARN, buf)
 }
 
 func Errorf2(ctx context.Context, format string, msg ... interface{}) {
@@ -326,7 +330,7 @@ func Errorf2(ctx context.Context, format string, msg ... interface{}) {
   buf.Write(string2Byte("[ERRO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(gContextKey + "=" + getContextValue(ctx) + " |"))
   buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
-  print(buf)
+  print(_ERR, buf)
 }
 
 func Fatalf2(ctx context.Context, format string, msg ... interface{}) {
@@ -337,7 +341,7 @@ func Fatalf2(ctx context.Context, format string, msg ... interface{}) {
   buf.Write(string2Byte("[FTAL] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(gContextKey + "=" + getContextValue(ctx) + " |"))
   buf.Write(string2Byte(fmt.Sprintf(format, msg...) + "\n"))
-  print(buf)
+  print(_DISASTER, buf)
 }
 
 func Debug2(ctx context.Context, msg ... interface{}) {
@@ -348,7 +352,7 @@ func Debug2(ctx context.Context, msg ... interface{}) {
   buf.Write(string2Byte("[DEBU] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(gContextKey + "=" + getContextValue(ctx) + " |"))
   buf.Write(string2Byte(fmt.Sprintln(msg...)))
-  print(buf)
+  print(_DEBUG, buf)
 }
 
 func Info2(ctx context.Context, msg ... interface{}) {
@@ -359,7 +363,7 @@ func Info2(ctx context.Context, msg ... interface{}) {
   buf.Write(string2Byte("[INFO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(gContextKey + "=" + getContextValue(ctx) + " |"))
   buf.Write(string2Byte(fmt.Sprintln(msg...)))
-  print(buf)
+  print(_INFO, buf)
 }
 
 func Warn2(ctx context.Context, msg ... interface{}) {
@@ -370,7 +374,7 @@ func Warn2(ctx context.Context, msg ... interface{}) {
   buf.Write(string2Byte("[WARN] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(gContextKey + "=" + getContextValue(ctx) + " |"))
   buf.Write(string2Byte(fmt.Sprintln(msg...)))
-  print(buf)
+  print(_WARN, buf)
 }
 
 func Error2(ctx context.Context, msg ... interface{}) {
@@ -381,7 +385,7 @@ func Error2(ctx context.Context, msg ... interface{}) {
   buf.Write(string2Byte("[ERRO] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(gContextKey + "=" + getContextValue(ctx) + " |"))
   buf.Write(string2Byte(fmt.Sprintln(msg...)))
-  print(buf)
+  print(_ERR, buf)
 }
 
 func Fatal2(ctx context.Context, msg ... interface{}) {
@@ -392,7 +396,7 @@ func Fatal2(ctx context.Context, msg ... interface{}) {
   buf.Write(string2Byte("[FTAL] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(gContextKey + "=" + getContextValue(ctx) + " |"))
   buf.Write(string2Byte(fmt.Sprintln(msg...)))
-  print(buf)
+  print(_DISASTER, buf)
 }
 
 func string2Byte(s string) []byte {
