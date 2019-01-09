@@ -4,6 +4,7 @@ import (
   "os"
 
   "github.com/spf13/viper"
+  "github.com/jinbanglin/helper"
 )
 
 type level = uint8
@@ -46,6 +47,8 @@ var gSetLevel = _DEBUG
 var gSetPollerInterval = 500
 var gContextKey = "TRACE"
 var gSendMail = false
+var gVersion = "dev"
+var gIp = helper.GetLocalIP()
 
 func setupConfig() {
   if value := viper.GetInt("log.bucketlen"); value > 0 {
@@ -80,6 +83,9 @@ func setupConfig() {
   }
   if value := viper.GetInt("log.interval"); value > 0 {
     gSetPollerInterval = value
+  }
+  if value := viper.GetString("server.version"); value != "" {
+    gVersion = value
   }
   gSendMail = viper.GetBool("log.send_mail")
 }
