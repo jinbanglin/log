@@ -404,7 +404,7 @@ func Fatal2(ctx context.Context, msg ... interface{}) {
   buf := bytebufferpool.Get()
   buf.Write(string2Byte("[FTAL] " + time.Now().Format("01/02/15:04:05") + " " + caller() + "❀ "))
   buf.Write(string2Byte(GContextKey + "=" + getContextValue(ctx) + " |"))
-  buf.Write(string2Byte("LOCAL=" + gIp + " |VERSION=" + gSetFilename+gVersion + " |"))
+  buf.Write(string2Byte("LOCAL=" + gIp + " |VERSION=" + gSetFilename + gVersion + " |"))
   buf.Write(string2Byte(fmt.Sprintln(msg...)))
   print(_DISASTER, buf)
 }
