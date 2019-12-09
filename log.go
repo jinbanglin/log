@@ -22,7 +22,6 @@ import (
     "github.com/spf13/viper"
 
     "context"
-    "github.com/jinbanglin/helper"
 )
 
 type level = uint8
@@ -281,7 +280,7 @@ func caller() string {
 
 func flow(lvl level, buf *bytebufferpool.ByteBuffer) {
     if gLogger.sendEmail && lvl >= _ERR {
-        helper.EmailInstance().SendMail(buf.String())
+        EmailInstance().SendMail(buf.String())
     }
     switch gLogger.Persist {
     case OUT_FILE:
