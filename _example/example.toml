@@ -1,0 +1,18 @@
+[log]
+reconfig              =true
+bucketlen             =1024
+linkname              ="exmaple"
+filepath              ="./logs"
+maxsize               =256
+bufsize               =2
+out                   ="file"
+send_mail             =false
+
+[email]
+user_name             ="xxxx@qq.com"
+host                  ="smtp.qq.com"
+port                  =":587"
+password              ="xxxx"
+to                    ="xxxx@qq.com;xxx@qq.com;xxx@qq.com"
+email_alias           ="log center"
+subject               ="error"
