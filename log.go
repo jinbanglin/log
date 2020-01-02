@@ -70,7 +70,6 @@ type Logger struct {
     closeSignal     chan string
     sigChan         chan os.Signal
     Persist         int
-    sendEmail       bool
     ringInterval    int
     ContextTraceKey string
 }
@@ -111,7 +110,6 @@ func ChaosLogger() {
             lock:            &sync.RWMutex{},
             closeSignal:     make(chan string),
             sigChan:         make(chan os.Signal),
-            sendEmail:       viper.GetBool("log.send_mail"),
             ringInterval:    500,
             ContextTraceKey: TraceContextKey,
         }
@@ -279,9 +277,6 @@ func caller() string {
 }
 
 func flow(lvl level, buf *bytebufferpool.ByteBuffer) {
-    if gLogger.sendEmail && lvl >= _ERR {
-        EmailInstance().SendMail(buf.String())
-    }
     switch gLogger.Persist {
     case OUT_FILE:
         gLogger.Bucket <- buf
